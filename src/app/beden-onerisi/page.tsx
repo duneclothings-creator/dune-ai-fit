@@ -464,9 +464,28 @@ const recommendation = recommendSize({
       {result.size}
     </p>
 
-    <p className="mt-3 text-center text-sm leading-relaxed text-gray-600">
-  {result.message}
-</p>
+<div className="mt-5 rounded-xl border-2 border-amber-400 bg-amber-50 p-5 shadow-sm">
+  <div className="mb-3 flex items-center gap-3">
+    <span className="text-2xl" aria-hidden="true">⚠️</span>
+    <h3 className="text-sm font-bold uppercase tracking-wide text-amber-900">
+      Önemli Bilgilendirme
+    </h3>
+  </div>
+
+  <p className="text-sm leading-7 text-gray-800">
+    <strong>Dune AI Fit, yapay zekâ destekli bir beden öneri sistemidir.</strong>
+    {" "}Sunulan beden, verdiğiniz bilgiler doğrultusunda oluşturulmuş
+    tahmini bir öneridir ve kesin uyum garantisi taşımaz.
+  </p>
+
+  <div className="mt-4 border-t border-amber-300 pt-3">
+    <p className="text-sm font-medium leading-7 text-gray-900">
+      Nihai beden seçimi size aittir. Onay butonuna bastığınızda
+      önerilen bedeni kendi değerlendirmenizle kabul etmiş
+      ve ürününüz için seçmiş olursunuz.
+    </p>
+  </div>
+</div>
 <button
   type="button"
   onClick={() => {
@@ -480,7 +499,12 @@ const recommendation = recommendSize({
   }}
   className="mt-5 w-full rounded-lg bg-black px-5 py-4 font-semibold text-white hover:bg-gray-800"
 >
-  Önerilen Bedeni Onayla – {result.size}
+ <span className="flex flex-col items-center gap-1">
+  <span>✓ {result.size} Bedenini Onaylıyorum</span>
+  <span className="text-xs font-normal text-gray-300">
+    Seçimimi onayla ve ürüne uygula
+  </span>
+</span>
 </button>
     <p className="mt-4 text-center text-xs font-medium text-gray-500">
   Tahmini Güvenilirlik:{" "}
