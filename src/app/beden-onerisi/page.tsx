@@ -449,7 +449,7 @@ const recommendation = recommendSize({
   setResult(recommendation);
   window.parent.postMessage(
   { type: "DUNE_AI_FIT_SIZE", size: recommendation.size },
-  "https://www.duneclothings.com"
+  "https://duneclothings.com"
 );
 }}
             disabled={!height || !weight}
