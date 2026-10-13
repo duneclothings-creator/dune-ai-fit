@@ -447,6 +447,10 @@ const recommendation = recommendSize({
 });
 
   setResult(recommendation);
+  window.parent.postMessage(
+  { type: "DUNE_AI_FIT_SIZE", size: recommendation.size },
+  "https://www.duneclothings.com"
+);
 }}
             disabled={!height || !weight}
             className="w-full rounded-lg bg-black p-4 font-medium text-white disabled:opacity-40"
