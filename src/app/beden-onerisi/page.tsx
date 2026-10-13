@@ -447,10 +447,7 @@ const recommendation = recommendSize({
 });
 
   setResult(recommendation);
-  window.parent.postMessage(
-  { type: "DUNE_AI_FIT_SIZE", size: recommendation.size },
-  "https://duneclothings.com"
-);
+ 
 }}
             disabled={!height || !weight}
             className="w-full rounded-lg bg-black p-4 font-medium text-white disabled:opacity-40"
@@ -470,7 +467,21 @@ const recommendation = recommendSize({
     <p className="mt-3 text-center text-sm leading-relaxed text-gray-600">
   {result.message}
 </p>
-
+<button
+  type="button"
+  onClick={() => {
+    window.parent.postMessage(
+      {
+        type: "DUNE_AI_FIT_CONFIRM",
+        size: result.size,
+      },
+      "https://duneclothings.com"
+    );
+  }}
+  className="mt-5 w-full rounded-lg bg-black px-5 py-4 font-semibold text-white hover:bg-gray-800"
+>
+  Önerilen Bedeni Onayla – {result.size}
+</button>
     <p className="mt-4 text-center text-xs font-medium text-gray-500">
   Tahmini Güvenilirlik:{" "}
   {result.confidence === "low"
