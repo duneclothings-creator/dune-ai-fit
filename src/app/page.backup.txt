@@ -1,0 +1,51 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+type Product = { id: string; name: string; fit: string; sizes: Record<string, number> };
+const products: Product[] = [
+  { id: "hoodie", name: "Oversize Hoodie", fit: "Oversize", sizes: { S: 108, M: 114, L: 120, XL: 126, "2XL": 132 } },
+  { id: "zip", name: "Fermuarlı Sweatshirt", fit: "Regular", sizes: { S: 100, M: 106, L: 112, XL: 118, "2XL": 124 } },
+  { id: "tee", name: "Basic T-Shirt", fit: "Regular", sizes: { S: 96, M: 102, L: 108, XL: 114, "2XL": 120 } },
+];
+
+export default function Home() {
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [productId, setProductId] = useState(products[0].id);
+  const [height, setHeight] = useState(175);
+  const [weight, setWeight] = useState(75);
+  const [chest, setChest] = useState(100);
+  const [color, setColor] = useState("Siyah");
+  const product = products.find((p) => p.id === productId)!;
+  const recommended = Object.entries(product.sizes).find(([, circumference]) => circumference >= chest + (product.fit === "Oversize" ? 12 : 6))?.[0] ?? null;
+  useEffect(() => () => { if (photo) URL.revokeObjectURL(photo); }, [photo]);
+
+  return (
+    <main className="min-h-screen bg-[#f7f7f5] text-zinc-900">
+      <header className="border-b border-zinc-200 bg-white px-6 py-5 md:px-12">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <div><div className="text-xl font-semibold tracking-[.22em]">DUNE CO. ATELIER</div><div className="mt-1 text-[10px] tracking-[.35em] text-zinc-500">AI FIT STUDIO</div></div>
+          <span className="rounded-full border border-zinc-300 px-3 py-1 text-xs">PROTOTİP V0.1</span>
+        </div>
+      </header>
+      <div className="mx-auto max-w-6xl px-5 py-10 md:px-10">
+        <div className="mb-9"><p className="text-xs uppercase tracking-[.3em] text-zinc-500">Kişisel sanal prova deneyimi</p><h1 className="mt-3 text-3xl font-light md:text-5xl">Tarzını üzerinde keşfet.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-zinc-600">Fotoğrafını yükle, ürünü seç ve ölçülerine göre örnek beden önerisini gör.</p></div>
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_.9fr]">
+          <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center justify-between"><h2 className="font-medium">01 / Fotoğrafın</h2><span className="text-xs text-zinc-400">JPG, PNG, WEBP</span></div>
+            <label className="flex min-h-[390px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 text-center hover:border-zinc-700">
+              {photo ? <img src={photo} alt="Yüklediğiniz fotoğrafın ön izlemesi" className="max-h-[500px] w-full object-contain" /> : <div className="px-6"><div className="mb-4 text-5xl">＋</div><p className="font-medium">Fotoğraf yüklemek için tıkla</p><p className="mt-2 text-sm text-zinc-500">Önden çekilmiş, iyi aydınlatılmış tam boy fotoğraf önerilir.</p></div>}
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { const file=e.target.files?.[0]; if(!file)return; if(file.size>8*1024*1024){alert("En fazla 8 MB fotoğraf yükleyebilirsiniz.");return;} setPhoto(URL.createObjectURL(file)); }} />
+            </label>
+            <p className="mt-3 text-xs leading-5 text-zinc-500">Bu prototipte fotoğraf yalnızca tarayıcında ön izlenir; sunucuya gönderilmez.</p>
+          </section>
+          <section className="space-y-6">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"><h2 className="mb-5 font-medium">02 / Ürün seçimi</h2><label className="mb-2 block text-sm text-zinc-600" htmlFor="product">Ürün</label><select id="product" value={productId} onChange={(e)=>setProductId(e.target.value)} className="w-full rounded-lg border border-zinc-300 bg-white p-3">{products.map((p)=><option key={p.id} value={p.id}>{p.name}</option>)}</select><label className="mb-2 mt-5 block text-sm text-zinc-600" htmlFor="color">Renk</label><select id="color" value={color} onChange={(e)=>setColor(e.target.value)} className="w-full rounded-lg border border-zinc-300 bg-white p-3"><option>Siyah</option><option>Beyaz</option><option>Lacivert</option><option>Ekru</option></select><p className="mt-3 text-xs text-zinc-500">Ürünler ve renkler örnektir; ikas bağlantısıyla güncellenecek.</p></div>
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"><h2 className="mb-5 font-medium">03 / Beden bilgilerin</h2><div className="grid grid-cols-2 gap-4"><div><label htmlFor="height" className="mb-2 block text-sm text-zinc-600">Boy (cm)</label><input id="height" type="number" min="100" max="230" value={height} onChange={(e)=>setHeight(Number(e.target.value))} className="w-full rounded-lg border border-zinc-300 p-3" /></div><div><label htmlFor="weight" className="mb-2 block text-sm text-zinc-600">Kilo (kg)</label><input id="weight" type="number" min="25" max="250" value={weight} onChange={(e)=>setWeight(Number(e.target.value))} className="w-full rounded-lg border border-zinc-300 p-3" /></div></div><label htmlFor="chest" className="mb-2 mt-4 block text-sm text-zinc-600">Göğüs çevresi (cm)</label><input id="chest" type="number" min="50" max="180" value={chest} onChange={(e)=>setChest(Number(e.target.value))} className="w-full rounded-lg border border-zinc-300 p-3" /><p className="mt-3 text-xs text-zinc-500">Bu örnek algoritma yalnızca göğüs ölçüsünü kullanır. Boy ve kilo ileride gelişmiş öneri için kullanılacaktır.</p></div>
+            <div className="rounded-2xl bg-zinc-950 p-6 text-white"><p className="text-xs uppercase tracking-[.2em] text-zinc-400">Örnek beden önerisi</p><div className="mt-3 text-4xl font-semibold">{chest>=50 && chest<=180 ? (recommended ?? "—") : "—"}</div><p className="mt-3 text-sm leading-6 text-zinc-300">{recommended ? `${product.name} için tahmini beden. Gerçek ürün ölçü tablosu bağlanmadan satın alma kararı için kullanmayın.` : "Bu ölçü için örnek tabloda uygun beden bulunamadı."}</p><button type="button" disabled className="mt-5 w-full cursor-not-allowed rounded-lg bg-white/20 px-4 py-3 text-sm text-zinc-300">AI ile üzerimde dene — yakında</button><p className="mt-3 text-xs text-zinc-400">Görsel giydirme özelliği henüz etkin değil.</p></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}
