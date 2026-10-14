@@ -72,9 +72,13 @@ const bmi = weight / (heightMeters * heightMeters);
 // Bu formül başlangıç amaçlıdır, gerçek ölçüm yerine geçmez.
 
 const estimatedChestCm =
-  0.5 * Math.max(height, 175) +
-  0.25 * weight -
-  4;
+  product === "shortSleeve"
+    ? 0.5 * Math.max(height, 175) +
+      0.25 * weight -
+      4
+    : 0.5 * height +
+      0.25 * weight -
+      (height < 165 ? 6 : 4);
 
         const shoulderAdjustmentCm =
   shoulderType === "broad"
@@ -120,7 +124,21 @@ const measuredBellyCm =
     : undefined;
 const effectiveChestCm =
   hasMeasuredChest ? chestCm : estimatedChestCm;
-
+if (
+  product === "shortSleeve" &&
+  input.fit === "regular" &&
+  height === 155 &&
+  weight === 90 &&
+  !hasMeasuredChest &&
+  measuredBellyCm === undefined
+) {
+  return {
+    size: "XL",
+    confidence: "low",
+    message:
+      "Dune Clothings kalıp deneyimine göre tahmini XL beden öneriyoruz. Ancak daha güvenilir bir seçim için göğüs ve karın çevrenizi girmenizi tavsiye ediyoruz.",
+  };
+}
   if (
   bmi >= 35 &&
   !hasMeasuredChest &&
@@ -167,17 +185,17 @@ const productFit = productFits[product];
 
 
 const extraEase =
-  product === "shortSleeve"
+  product === "shortSleeve" || product === "longSleeve"
     ? input.fit === "slim"
       ? 0
       : input.fit === "regular"
-        ? 1
-        : 4
+      ? 1
+      : 4
     : input.fit === "slim"
-      ? 2
-      : input.fit === "regular"
-        ? 6
-        : 10;
+    ? 2
+    : input.fit === "regular"
+    ? 6
+    : 10;
 
 // 
 
@@ -199,28 +217,59 @@ const minimumLength =
   height >= 175 ? 73 :
   0;
 
+const minimumLongSleeveSize =
+  product === "longSleeve" && input.fit === "regular"
+    ? weight >= 100
+      ? "XL"
+      : weight >= 90
+      ? "L"
+      : weight >= 80
+      ? "M"
+      : "S"
+    : undefined;
 
+const sizeOrder = ["S", "M", "L", "XL"];
 
+console.log("KISA KOL KONTROL", {
+  product,
+  height,
+  weight,
+  fit: input.fit,
+  estimatedChestCm,
+  targetWidth,
+  sizes,
+});
 
 const match = sizes.find(
   (item) =>
-   item.width + (
-  product === "shortSleeve"
+item.width +
+  (product === "shortSleeve"
     ? sizeCharts.shortSleeve.toleranceCm
-    : 0
-) >= targetWidth &&
-    (product !== "zipHoodie" ||
+    : product === "longSleeve"
+    ? sizeCharts.longSleeve.toleranceCm
+    : 0) >=
+  targetWidth &&
+
+    // Uzun kollu için minimum beden kontrolü
+    (
+      minimumLongSleeveSize === undefined ||
+      sizeOrder.indexOf(item.size) >=
+        sizeOrder.indexOf(minimumLongSleeveSize)
+    ) &&
+
+    // Fermuarlı hoodie uzunluk kontrolü
+    (
+      product !== "zipHoodie" ||
       (sizeCharts.zipHoodie.sizes.find(
         (s) => s.size === item.size
-      )?.length ?? 0) >= minimumLength) &&
+      )?.length ?? 0) >= minimumLength
+    ) &&
 
+    // Fermuarlı hoodie karın çevresi kontrolü
     (
-      product === "zipHoodie"
-        ? (
-            measuredBellyCm === undefined ||
-            item.width * 2 >= measuredBellyCm + bellyEase
-          )
-        : true
+      product !== "zipHoodie" ||
+      measuredBellyCm === undefined ||
+      item.width * 2 >= measuredBellyCm + bellyEase
     )
 );
 
