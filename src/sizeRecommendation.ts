@@ -70,11 +70,12 @@ const heightMeters = height / 100;
 const bmi = weight / (heightMeters * heightMeters);
 // Boy ve kilodan yaklaşık göğüs çevresi tahmini
 // Bu formül başlangıç amaçlıdır, gerçek ölçüm yerine geçmez.
+
 const estimatedChestCm =
-  0.5 * height +
+  0.5 * Math.max(height, 175) +
   0.25 * weight -
-  4 +
- 0;
+  4;
+
         const shoulderAdjustmentCm =
   shoulderType === "broad"
     ? 3
@@ -119,13 +120,20 @@ const measuredBellyCm =
     : undefined;
 const effectiveChestCm =
   hasMeasuredChest ? chestCm : estimatedChestCm;
-  measuredBellyCm !== undefined
-    ? Math.max(
-        hasMeasuredChest ? chestCm : estimatedChestCm,
-        measuredBellyCm
-      )
-    : (hasMeasuredChest ? chestCm : estimatedChestCm) +
-      bodyAdjustmentCm;
+
+  if (
+  bmi >= 35 &&
+  !hasMeasuredChest &&
+  measuredBellyCm === undefined
+) {
+ 
+  return {
+    size: null,
+    confidence: "low",
+    message:
+      "Daha güvenilir bir beden önerisi sunabilmemiz için göğüs veya karın çevrenizi girmenizi rica ediyoruz. Yalnızca boy ve kilo bilgileriniz bu durumda yeterli olmayabilir.",
+  };
+}
 
 if (effectiveChestCm > 0) {
    const baseChestCm = hasMeasuredChest
@@ -156,22 +164,19 @@ const productFit = productFits[product];
 // Müşterinin istediği giyim rahatlığına göre ek pay
 // Oversize ürün zaten geniş kesimli olduğu için
 // ikinci kez fazla genişlik eklemiyoruz.
+
 const extraEase =
-  productFit === "oversize"
-    ? input.fit === "slim"
-      ? 2
-      : input.fit === "oversize"
-        ? 2
-        : 4
-    : input.fit === "slim"
-      ? 0
-      : input.fit === "oversize"
-        ? 4
-        : 1;
+  input.fit === "slim"
+    ? 2
+    : input.fit === "regular"
+      ? 6
+      : 10;
+// 
 
 const bodyEase = 0;
 
-const targetWidth = halfChest + extraEase + bodyEase;
+const targetWidth =
+  halfChest + extraEase + bodyEase + bodyAdjustmentCm / 2;
 
 const bellyEase =
   input.fit === "slim"
@@ -180,9 +185,23 @@ const bellyEase =
       ? 8
       : 6;
 
+const minimumLength =
+  height >= 190 ? 77 :
+  height >= 180 ? 75 :
+  height >= 175 ? 73 :
+  0;
+
+
+
+
 const match = sizes.find(
   (item) =>
     item.width >= targetWidth &&
+    (product !== "zipHoodie" ||
+      (sizeCharts.zipHoodie.sizes.find(
+        (s) => s.size === item.size
+      )?.length ?? 0) >= minimumLength) &&
+
     (
       product === "zipHoodie"
         ? (
