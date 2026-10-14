@@ -165,12 +165,20 @@ const productFit = productFits[product];
 // Oversize ürün zaten geniş kesimli olduğu için
 // ikinci kez fazla genişlik eklemiyoruz.
 
+
 const extraEase =
-  input.fit === "slim"
-    ? 2
-    : input.fit === "regular"
-      ? 6
-      : 10;
+  product === "shortSleeve"
+    ? input.fit === "slim"
+      ? 0
+      : input.fit === "regular"
+        ? 1
+        : 4
+    : input.fit === "slim"
+      ? 2
+      : input.fit === "regular"
+        ? 6
+        : 10;
+
 // 
 
 const bodyEase = 0;
@@ -196,7 +204,11 @@ const minimumLength =
 
 const match = sizes.find(
   (item) =>
-    item.width >= targetWidth &&
+   item.width + (
+  product === "shortSleeve"
+    ? sizeCharts.shortSleeve.toleranceCm
+    : 0
+) >= targetWidth &&
     (product !== "zipHoodie" ||
       (sizeCharts.zipHoodie.sizes.find(
         (s) => s.size === item.size
